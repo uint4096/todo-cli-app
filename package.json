@@ -1,0 +1,29 @@
+{
+  "name": "todo",
+  "version": "1.0.0",
+  "description": "A CLI tool to plan your tasks ahead",
+  "main": "index.js",
+  "bin": {
+    "todo": "bin/index.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node app.js"
+  },
+  "keywords": [
+    "cli",
+    "todo"
+  ],
+  "author": "Abhishek Kumar",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.19.2",
+    "body-parser": "^1.19.0",
+    "chalk": "^3.0.0",
+    "cron": "^1.8.2",
+    "express": "^4.17.1",
+    "moment": "^2.24.0",
+    "mongoose": "^5.9.7",
+    "node-notifier": "^6.0.0"
+  }
+}
