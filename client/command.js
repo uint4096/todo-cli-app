@@ -1,4 +1,5 @@
-const validationParams = require('./validationConsts');
+const validationParams = require('./validationConsts'),
+      moment = require('moment');
 
 const HELP_COMMAND_FUNC     = (element) => {return element == '--help' || element == '-h'},
       ADD_COMMAND_FUNC      = (element) => {return element == '--add' || element == '-a'},
@@ -30,29 +31,51 @@ module.exports = function(args){
         help: null  
     };
 
-    const validatedTask = validateTask(argsSliced[argsSliced.findIndex(ADD_COMMAND_FUNC) + 1]);
-    Object.assign(validateObj.add.task, validatedTask);
-    if (argsSliced.findIndex(ADD_COMMAND_FUNC) === -1
-            || validatedTask[validationMessage] !== validationParams.VALIDATION_SUCCESS_MSG) {
-
-        validateObj.message = validationParams.TASK_ERROR_MESSAGE;
-        return validateObj;
-    }
-    
-    const timeObj =  validateTime(argsSliced[argsSliced.findIndex(TIME_COMMAND_FUNC) + 1]);
-    Object.assign(validateObj.add.time, timeObj);
-
-    if (argsSliced.findIndex(TIME_COMMAND_FUNC) === -1 
-            || (argsSliced.findIndex(TIME_COMMAND_FUNC) - 1) === argsSliced.findIndex(ADD_COMMAND_FUNC) 
-            || timeObj[validationMessage] !== validationParams.VALIDATION_SUCCESS_MSG){
+    try {
         
-        validateObj.message = validationParams.TIME_ERROR_MESSAGE;
-        return validateObj;  
-    } 
+        const validatedTask = validateTask(argsSliced[argsSliced.findIndex(ADD_COMMAND_FUNC) + 1]);
+        Object.assign(validateObj.add.task, validatedTask);
+        if (argsSliced.findIndex(ADD_COMMAND_FUNC) === -1
+                || validatedTask[validationMessage] !== validationParams.VALIDATION_SUCCESS_MSG) {
 
-    validateObj.status = validationParams.VALIDATION_SUCCESS_STATUS;
-    validateObj.message = validationParams.VALIDATION_SUCCESS_MSG;
-    return validateObj;
+            validateObj.message = validationParams.TASK_ERROR_MESSAGE;
+            return validateObj;
+        }
+        
+        const timeObj =  validateTime(argsSliced[argsSliced.findIndex(TIME_COMMAND_FUNC) + 1]);
+        Object.assign(validateObj.add.time, timeObj);
+        if (argsSliced.findIndex(TIME_COMMAND_FUNC) === -1 
+                || (argsSliced.findIndex(TIME_COMMAND_FUNC) - 1) === argsSliced.findIndex(ADD_COMMAND_FUNC)
+                || (argsSliced.findIndex(TIME_COMMAND_FUNC) - 1) === argsSliced.findIndex(DATE_COMMAND_FUNC) 
+                || timeObj[validationMessage] !== validationParams.VALIDATION_SUCCESS_MSG){
+            
+            validateObj.message = validationParams.TIME_ERROR_MESSAGE;
+            return validateObj;  
+        } 
+
+        // Date may or may not be defined. The command is valid either way.
+        const dateObj = validateDate(argsSliced[argsSliced.findIndex(DATE_COMMAND_FUNC) + 1]);
+        Object.assign(validateObj.add.date, dateObj);
+        if(argsSliced.findIndex(DATE_COMMAND_FUNC) !== -1
+                && (((argsSliced.findIndex(DATE_COMMAND_FUNC) - 1) === argsSliced.findIndex(TIME_COMMAND_FUNC))
+                || ((argsSliced.findIndex(DATE_COMMAND_FUNC) - 1) === argsSliced.findIndex(ADD_COMMAND_FUNC))
+                || (dateObj[validationMessage] !== validationParams.VALIDATION_SUCCESS_MSG))){
+
+            validateObj.message = validationParams.DATE_ERROR_MESSAGE;
+            return validateObj; 
+        } else  {
+            validateObj.add.date[validationMessage] = validationParams.VALIDATION_SUCCESS_MSG;
+        }
+
+        validateObj.status = validationParams.VALIDATION_SUCCESS_STATUS;
+        validateObj.message = validationParams.VALIDATION_SUCCESS_MSG;
+        return validateObj;
+
+    } catch {
+
+        return validateObj;
+
+    }
 }
 
 
@@ -86,8 +109,6 @@ const validateTime = function(timeString){
 
             if (!isNaN(hours) && hours < 12) {
                 hours += 12;
-            } else if (!isNaN(hours) && hours === 12) {
-                hours = 24
             } else if (isNaN(hours) || hours > 12 || hours <= 0) {
                 return timeObj
             }
@@ -118,11 +139,9 @@ const validateTime = function(timeString){
         timeObj.seconds = isNaN(seconds) ? 0 : minutes;
 
         return timeObj;
+    } 
 
-    } else {
-        timeObj[validationMessage] = validationParams.TIME_ERROR_MESSAGE;
-        return timeObj;
-    }
+    return timeObj;
 };
 
 const validateTask = function(taskString){
@@ -138,4 +157,41 @@ const validateTask = function(taskString){
     }
 
     return taskObj;
+}
+
+
+const validateDate = function(dateString){
+    const dateObj = {
+        day: null,
+        month:null,
+        year: null,
+        [validationMessage]: validationParams.DATE_ERROR_MESSAGE 
+    };
+
+    console.log(dateString);
+    if (dateString != undefined) {
+
+        let splitDate = dateString.split('/');
+        let day = splitDate[0];
+        let month = splitDate[1];
+        let year = splitDate[2];
+
+        const currDate = moment();
+
+        console.log(day+'/'+month+'/'+year);
+        const userDate = moment(day+'/'+month+'/'+year, 'DD/MM/YYYY');
+        
+        if (!userDate.isValid() || !userDate.isAfter(currDate, 'day')) {
+            return dateObj; 
+        } 
+
+        dateObj.day = +day;
+        dateObj.month = +month;
+        dateObj.year = +year;
+
+    } 
+    
+    dateObj[validationMessage] = validationParams.VALIDATION_SUCCESS_MSG;
+
+    return dateObj;
 }

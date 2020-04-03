@@ -4,14 +4,20 @@ const controller = require('../client/controller'),
 
 module.exports = async function(){
     
-    const tasksRequest = await controller.fetchTasks();
-    const tasks = tasksRequest.data;
     const currDateTime = moment();
-    const filteredTasks = tasks.filter(val => moment(val.dateTime).local() > currDateTime);
+    const nextDateTime = moment();
+    const nextDate = nextDateTime.startOf('day').add(1,'days');
+    const currDate = currDateTime.startOf('day');
 
-    for (task of filteredTasks) {
+    const tasksRequest = await controller.fetchTasksByDate(currDate.toISOString(), nextDate.toISOString());
+    const tasks = tasksRequest.data;
 
-        const timediff = moment(task.dateTime).local().diff(currDateTime);
+    const filteredTasks = tasks.filter(val => moment(val.dateTime).isAfter(moment()));
+
+    for (let task of filteredTasks) {
+
+        const timediff = moment(task.dateTime).diff(moment());
+        console.log(task.content);
         console.log(timediff);
         setTimeout(() => {
 

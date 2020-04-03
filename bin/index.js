@@ -6,13 +6,12 @@ const formatCommand = require('../client/command'),
       controller = require('../client/controller');
 
 const commandBody = formatCommand(process.argv);
-console.log(commandBody);
 
 if (commandBody.message === validationParams.VALIDATION_SUCCESS_MSG
     && commandBody.status === validationParams.VALIDATION_SUCCESS_STATUS) {
 
         const taskDateTime = timeCalcs.getTimeString(commandBody.add.date, commandBody.add.time);
-        console.log(taskDateTime);
+        
         const postObj = {
             dateTime: taskDateTime,
             content: commandBody.add.task.body,
@@ -26,7 +25,5 @@ if (commandBody.message === validationParams.VALIDATION_SUCCESS_MSG
                 console.log(`Unable to add task: ${err}`);
             })
         
-} else {
-    console
 }
     
