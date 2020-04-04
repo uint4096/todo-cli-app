@@ -2,7 +2,13 @@ const controller = require('../client/controller'),
       moment = require('moment'),
       notifier = require('node-notifier');
 
-module.exports = async function(){
+/*
+* Run by the cron job every midnight.
+*
+* Fetches the tasks for the day and lines them up
+* for the user to be notified.
+*/
+exports.timeTasks = async function(){
     
     const currDateTime = moment();
     const nextDateTime = moment();
@@ -33,4 +39,25 @@ module.exports = async function(){
     }
 
     return filteredTasks;
+}
+
+exports.addTaskToQueue = function(task){
+    
+    if ((moment().isSame(task.dateTime, 'day'))) {
+
+        const timediff = moment(task.dateTime).diff(moment());
+        console.log(task.content);
+        console.log(timediff);
+        setTimeout(() => {
+
+            notifier.notify(
+                {
+                    title: 'Todo notification!',
+                    message: task.content,
+                    sound: true
+                },
+            );
+
+        }, timediff);
+    }
 }

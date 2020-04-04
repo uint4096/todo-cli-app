@@ -4,7 +4,7 @@ const {CronJob}  = require('cron'),
 const CRON_CONFIG = {
     cronTime: '0 0 * * *',
     runOnInit: true,
-    onTick: timer,
+    onTick: timer.timeTasks,
 }
 
 module.exports = function(){

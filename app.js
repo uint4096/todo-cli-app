@@ -1,29 +1,37 @@
-const express = require('express'),
-      app = express(),
-      mongoose = require('mongoose');
-      bodyParser = require('body-parser')
-      port = 3000,
+const server = require('./server/server'),
+      mongoose = require('mongoose'),
       dbConnect = "mongodb+srv://user0032:pwdatlas7@clusterone-rsike.mongodb.net/test?retryWrites=true&w=majority",
-      routes = require('./server/route'),
-      cronJob = require('./timer/cron');
+      cronJob = require('./timer/cron'),
+      socket = require('socket.io'),
+      timer = require('./timer/timer');
 
 (async () => {
-
-    app.use(bodyParser.urlencoded({extended:true}));
-    app.use(bodyParser.json());
-  
-    await routes(app);
-
-    app.listen(port, () => {
-        console.log(`Server started on port ${port}`);
-    })
 
     mongoose.connect(dbConnect)
         .then((res) => {
             console.log("Connection to db successful");
         })
     
-    let cron = await cronJob();
+    const serverExp = await server();
+    console.log('Server started.');
+
+    const io = socket.listen(serverExp);
+
+    io.on('connection', function(socket){
+        console.log('A client connected.');
+
+        socket.on('add-task', function(task){
+            console.log('Task added!');
+            timer.addTaskToQueue(task);
+            socket.disconnect();
+        });
+
+        socket.on('disconnect', function(task){
+            console.log('The client disconnected!');
+        });
+    });
+
+    const cron = await cronJob();
     console.log(`Cron job started for cron-time: ${cron.cronTime}`);
 
 })();  
