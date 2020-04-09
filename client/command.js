@@ -33,6 +33,24 @@ module.exports = function(args){
 
     try {
         
+        if (argsSliced.findIndex(DISPLAY_COMMAND_FUNC) !== -1) {
+
+            validateObj.display = true;
+            validateObj.message = validationParams.VALIDATION_SUCCESS_MSG;
+            validateObj.status = validationParams.VALIDATION_SUCCESS_STATUS;
+            
+            return validateObj;
+        }
+
+        if (argsSliced.findIndex(HELP_COMMAND_FUNC) !== -1) {
+
+            validateObj.help = true;
+            validateObj.message = validationParams.VALIDATION_SUCCESS_MSG;
+            validateObj.status = validationParams.VALIDATION_SUCCESS_STATUS;
+
+            return validateObj;
+        }
+
         const validatedTask = validateTask(argsSliced[argsSliced.findIndex(ADD_COMMAND_FUNC) + 1]);
         Object.assign(validateObj.add.task, validatedTask);
         if (argsSliced.findIndex(ADD_COMMAND_FUNC) === -1
@@ -144,6 +162,13 @@ const validateTime = function(timeString){
     return timeObj;
 };
 
+
+/*
+* Validates the task string passed by the user.
+* If validated successfully, returns an object containing
+* the task 'body' and a successfull validation message.
+*/
+
 const validateTask = function(taskString){
 
     const taskObj = {
@@ -159,7 +184,12 @@ const validateTask = function(taskString){
     return taskObj;
 }
 
-
+/*
+* Validates the date string passed by the user.
+* If validated successfully, returns an object containing
+* the task 'day', 'month', and 'year' values and a successfull 
+* validation message.
+*/
 const validateDate = function(dateString){
     const dateObj = {
         day: null,
@@ -168,7 +198,6 @@ const validateDate = function(dateString){
         [validationMessage]: validationParams.DATE_ERROR_MESSAGE 
     };
 
-    console.log(dateString);
     if (dateString != undefined) {
 
         let splitDate = dateString.split('/');
@@ -178,7 +207,6 @@ const validateDate = function(dateString){
 
         const currDate = moment();
 
-        console.log(day+'/'+month+'/'+year);
         const userDate = moment(day+'/'+month+'/'+year, 'DD/MM/YYYY');
         
         if (!userDate.isValid() || !userDate.isAfter(currDate, 'day')) {

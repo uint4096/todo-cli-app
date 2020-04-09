@@ -1,7 +1,6 @@
 const axios = require('axios');
 
 exports.queueTask = function(taskBody){
-    console.log(taskBody.dateTime);
     return axios.post('http://localhost:3000/task', taskBody);
 }   
 
