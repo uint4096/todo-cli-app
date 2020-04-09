@@ -17,6 +17,15 @@ const server = require('./server/server'),
     const serverExp = await server();
     console.log('Server started.');
 
+    socketIo(serverExp);
+
+    const cron = await cronJob();
+    console.log(`Cron job started for cron-time: ${cron.cronTime}`);
+
+})();  
+
+
+function socketIo(serverExp){
     const io = socket.listen(serverExp);
 
     io.on('connection', function(socket){
@@ -32,8 +41,4 @@ const server = require('./server/server'),
             console.log('The client disconnected!');
         });
     });
-
-    const cron = await cronJob();
-    console.log(`Cron job started for cron-time: ${cron.cronTime}`);
-
-})();  
+}
