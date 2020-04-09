@@ -1,9 +1,11 @@
+require('dotenv').config();
 const server = require('./server/server'),
       mongoose = require('mongoose'),
-      dbConnect = "mongodb+srv://user0032:pwdatlas7@clusterone-rsike.mongodb.net/test?retryWrites=true&w=majority",
+      dbConnect = process.env.DB_STRING + "&w=majority",
       cronJob = require('./timer/cron'),
       socket = require('socket.io'),
       timer = require('./timer/timer');
+
 
 (async () => {
 

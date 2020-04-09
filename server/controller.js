@@ -4,7 +4,6 @@ const mongoose = require('mongoose'),
 
 exports.postTask = function(req, res){
 
-    console.log(req.body.dateTime);
     return taskModel
             .create(req.body)
             .then((result) => {
@@ -35,8 +34,7 @@ exports.getTaskByDate = function(req, res){
 
     const currDate = req.query.curr;
     const nextDate = req.query.next;
-    console.log(currDate);
-    console.log(nextDate);
+
     return taskModel
             .find({'dateTime': {$gte: currDate, $lt: nextDate}})
             .exec()
